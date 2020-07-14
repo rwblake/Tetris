@@ -7,20 +7,16 @@ import tkinter as tk
 import tetrimino as ttr
 
 
-SCALE = 1.0
-ROOT = tk.Tk()
-
-
 class Game:
 	size = [10, 20]
-	speed_ms = 500
+	speed_ms = 300
 
 	def __init__(self, parent, scale):
 		self.parent = parent
 		self.scale = scale
 
 		self.grid = np.zeros(self.size, dtype=bool)
-		self.canvas = tk.Canvas(self.parent, width=self.size[0] * 32 * self.scale, height=self.size[1] * 32 * self.scale, bg='black')
+		self.canvas = tk.Canvas(self.parent, width=self.size[0] * 32 * self.scale, height=self.size[1] * 32 * self.scale, bg='black', highlightthickness=0)
 		self.canvas.pack()
 		self.end = False
 
@@ -91,6 +87,9 @@ class Game:
 			self.parent.after(self.speed_ms, self.loop)
 
 
+if __name__ == '__main__':
+	scale = 1.0
+	root = tk.Tk()
 
-game = Game(ROOT, SCALE)
-ROOT.mainloop()
+	game = Game(root, scale)
+	root.mainloop()
