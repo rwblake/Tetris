@@ -22,6 +22,7 @@ class Game:
 		self.grid = np.zeros(self.size, dtype=bool)
 		self.canvas = tk.Canvas(self.parent, width=self.size[0] * 32 * self.scale, height=self.size[1] * 32 * self.scale, bg='black')
 		self.canvas.pack()
+		self.end = False
 
 		self.t = ttr.random_tetrimino(self.grid)
 		self.t_drawn = self.draw_ttr(self.t)
@@ -30,8 +31,10 @@ class Game:
 		self.parent.after(self.speed_ms, self.loop)
 
 	def callback(self, event):
-		key = event.keysym
+		if self.end:
+			return
 
+		key = event.keysym
 		if key == 'Up':
 			self.t.rotate()
 			self.redraw()
@@ -46,6 +49,8 @@ class Game:
 			self.redraw()
 			if self.t.locked:
 				self.new_ttr()
+				if self.t.locked:
+					self.end = True
 
 	def square(self, pos, colour):
 		return self.canvas.create_rectangle(pos[0]*32*self.scale, pos[1]*32*self.scale, pos[0]*32*self.scale+32*self.scale, pos[1]*32*self.scale+32*self.scale, fill=colour)
@@ -68,15 +73,21 @@ class Game:
 		self.t_drawn = []
 
 	def loop(self):
+		if self.end:
+			return
+
 		self.t.fall()
 
 		self.redraw()
 
 		if self.t.locked:
 			self.new_ttr()
+			if self.t.locked:
+				self.end = True
+				return
 			self.redraw()
 			self.loop()
-		else:
+		elif not self.end:
 			self.parent.after(self.speed_ms, self.loop)
 
 
