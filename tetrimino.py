@@ -23,13 +23,20 @@ class Tetrimino:
 		self.colour = colour
 		self.grid = grid
 
+		self.gridsize = self.grid.shape
 		self.locked = False
-		self.pos = np.array([4, 0])
-		self.centre = np.array([self.pos[0] + self.size/2, self.pos[1] + self.size / 2])
+		self.pos = np.array([self.size-1, 0])
+		self.centre = np.array([self.size / 2, self.size / 2])
+
+	@property
+	def positions(self):
+		return self.shape + self.pos
 
 	def occupied(self, shape):
 		for point in shape:
-			if self.grid[point]:
+			if point[0] >= self.gridsize[0] or point[0] < 0 or point[1] >= self.gridsize[1] or point[1] < 0:
+				return True
+			elif self.grid[point[0], point[1]]:
 				return True
 		else:
 			return False
@@ -38,19 +45,19 @@ class Tetrimino:
 		if self.locked:
 			return
 
-		rel_shape = [point - self.centre for point in self.shape]
+		rel_shape = np.array([point - self.centre for point in self.shape])
 		rot_mtx  = np.array([[0, 1], [-1, 0]])
 		new_shape = np.dot(rel_shape, rot_mtx)
 
-		shape = new_shape + self.centre + self.pos
-		if not self.occupied(shape):
+		shape = (new_shape + self.centre).astype(np.int)
+		if not self.occupied(shape+self.pos):
 			self.shape = shape
 
 	def fall(self):
 		if self.locked:
 			return
 
-		shape = self.shape + np.array([0, 1]) + self.pos
+		shape = self.positions + np.array([0, 1])
 		if self.occupied(shape):
 			self.locked = True
 		else:
@@ -64,12 +71,12 @@ class Tetrimino:
 		else:
 			raise ValueError(f'should be left or right, not {direction}')
 
-		shape = self.shape + delta + self.pos
+		shape = self.positions + delta
 		if not self.occupied(shape):
 			self.pos = self.pos + delta
 
 
 def random_tetrimino(grid):
-	args = random.choice(TETRIMINOES.values)
+	args = random.choice(list(TETRIMINOES.values())).copy()
 	args.append(grid)
 	return Tetrimino(*args)
