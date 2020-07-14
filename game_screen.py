@@ -13,6 +13,7 @@ ROOT = tk.Tk()
 
 class Game:
 	size = [10, 20]
+	speed_ms = 500
 
 	def __init__(self, parent, scale):
 		self.parent = parent
@@ -26,7 +27,7 @@ class Game:
 		self.t_drawn = self.draw_ttr(self.t)
 
 		self.parent.bind('<Key>', self.callback)
-		self.parent.after(500, self.loop)
+		self.parent.after(self.speed_ms, self.loop)
 
 	def callback(self, event):
 		key = event.keysym
@@ -76,7 +77,7 @@ class Game:
 			self.redraw()
 			self.loop()
 		else:
-			self.parent.after(500, self.loop)
+			self.parent.after(self.speed_ms, self.loop)
 
 
 
