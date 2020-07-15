@@ -4,18 +4,16 @@ import numpy as np
 import random
 
 
-TETRIMINOES = {
-	'square':  [2, np.array([[0, 0], [0, 1], [1, 0], [1, 1]]), 'yellow'],
-	'line':    [4, np.array([[0, 3], [1, 3], [2, 3], [3, 3]]), 'cyan'],
-	't':       [3, np.array([[0, 2], [1, 2], [2, 2], [1, 1]]), 'purple'],
-	'left_l':  [3, np.array([[0, 2], [1, 2], [2, 2], [0, 1]]), 'blue'],
-	'right_l': [3, np.array([[0, 2], [1, 2], [2, 2], [2, 1]]), 'orange'],
-	'left_z':  [3, np.array([[0, 1], [1, 1], [1, 2], [2, 2]]), 'red'],
-	'right_z': [3, np.array([[0, 2], [1, 2], [1, 1], [2, 1]]), 'green']
-}
-
-
 class Tetrimino:
+	TETRIMINOES = {
+		'square':  [2, np.array([[0, 0], [0, 1], [1, 0], [1, 1]]), 'yellow'],
+		'line':    [4, np.array([[0, 3], [1, 3], [2, 3], [3, 3]]), 'cyan'],
+		't':       [3, np.array([[0, 2], [1, 2], [2, 2], [1, 1]]), 'purple'],
+		'left_l':  [3, np.array([[0, 2], [1, 2], [2, 2], [0, 1]]), 'blue'],
+		'right_l': [3, np.array([[0, 2], [1, 2], [2, 2], [2, 1]]), 'orange'],
+		'left_z':  [3, np.array([[0, 1], [1, 1], [1, 2], [2, 2]]), 'red'],
+		'right_z': [3, np.array([[0, 2], [1, 2], [1, 1], [2, 1]]), 'green']
+	}
 	
 	def __init__(self, size, shape, colour, grid):
 		self.size = size
@@ -31,6 +29,12 @@ class Tetrimino:
 	@property
 	def positions(self):
 		return self.shape + self.pos
+
+	@classmethod
+	def random(cls, grid):
+		args = random.choice(list(cls.TETRIMINOES.values())).copy()
+		args.append(grid)
+		return cls(*args)
 
 	def occupied(self, shape):
 		for point in shape:
@@ -74,9 +78,3 @@ class Tetrimino:
 		shape = self.positions + delta
 		if not self.occupied(shape):
 			self.pos = self.pos + delta
-
-
-def random_tetrimino(grid):
-	args = random.choice(list(TETRIMINOES.values())).copy()
-	args.append(grid)
-	return Tetrimino(*args)

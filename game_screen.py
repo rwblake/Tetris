@@ -17,18 +17,21 @@ class Game:
 		self.parent = parent
 		self.scale = scale
 
+		self.canvas = tk.Canvas(self.parent, width=self.size[0] * self.grid_size * self.scale, height=self.size[1] * self.grid_size * self.scale, bg='black', highlightthickness=0)
+		self.canvas.pack()
+		self.score_text = self.canvas.create_text(self.size[0]*32, 0, anchor='ne', text='', fill='white')
+
+		self.start()
+
+	def start(self):
 		self.end = False
 		self.score = 0
 		self.soft_lines = 0
 
 		self.grid = np.zeros(self.size, dtype=bool)
-		self.canvas = tk.Canvas(self.parent, width=self.size[0] * self.grid_size * self.scale, height=self.size[1] * self.grid_size * self.scale, bg='black', highlightthickness=0)
-		self.canvas.pack()
-		self.score_text = self.canvas.create_text(self.size[0]*32, 0, anchor='ne', text=str(self.score), fill='white')
-
 		self.static_blocks = np.empty(self.size, dtype=int)
 		self.squares = 0
-		self.t = ttr.random_tetrimino(self.grid)
+		self.t = ttr.Tetrimino.random(self.grid)
 		self.t_drawn = self.draw_ttr(self.t)
 
 		self.parent.bind('<Key>', self.callback)
