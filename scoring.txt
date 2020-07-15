@@ -1,0 +1,8 @@
+1 line  cleared            100
+2 lines cleared            400
+3 lines cleared            900
+4 lines cleared           2000
+
+soft dropping per line       1
+
+perfect clear              x10
