@@ -19,9 +19,7 @@ class Game:
 
 		self.canvas = tk.Canvas(self.parent, width=self.size[0] * self.grid_size * self.scale, height=self.size[1] * self.grid_size * self.scale, bg='black', highlightthickness=0)
 		self.canvas.pack()
-		self.score_text = self.canvas.create_text(self.size[0]*32, 0, anchor='ne', text='', fill='white')
-
-		self.start()
+		self.score_text = self.canvas.create_text(self.size[0]*32*self.scale, 0, anchor='ne', text='', fill='white')
 
 	def start(self):
 		self.end = False
@@ -39,6 +37,7 @@ class Game:
 
 	def callback(self, event):
 		if self.end:
+			self.parent.unbind('All')
 			return
 
 		key = event.keysym
@@ -113,7 +112,7 @@ class Game:
 			self.grid[tuple(pos)] = True
 			self.static_blocks[tuple(pos)] = t
 			self.squares += 1
-		self.t = ttr.random_tetrimino(self.grid)
+		self.t = ttr.Tetrimino.random(self.grid)
 		self.t_drawn = []
 
 		row = self.full_row()
@@ -149,9 +148,14 @@ class Game:
 			self.parent.after(self.speed_ms, self.loop)
 
 
-if __name__ == '__main__':
-	scale = 1.0
+def main():
+	scale = 1
 	root = tk.Tk()
 
 	game = Game(root, scale)
+	game.start()
 	root.mainloop()
+
+
+if __name__ == '__main__':
+	main()
