@@ -11,6 +11,7 @@ class Game:
 	size = [10, 20]
 	speed_ms = 300
 	scoring = {0: 0, 1: 100, 2: 400, 3: 900, 4:2000}
+	grid_size = 32
 
 	def __init__(self, parent, scale):
 		self.parent = parent
@@ -21,7 +22,7 @@ class Game:
 		self.soft_lines = 0
 
 		self.grid = np.zeros(self.size, dtype=bool)
-		self.canvas = tk.Canvas(self.parent, width=self.size[0] * 32 * self.scale, height=self.size[1] * 32 * self.scale, bg='black', highlightthickness=0)
+		self.canvas = tk.Canvas(self.parent, width=self.size[0] * self.grid_size * self.scale, height=self.size[1] * self.grid_size * self.scale, bg='black', highlightthickness=0)
 		self.canvas.pack()
 		self.score_text = self.canvas.create_text(self.size[0]*32, 0, anchor='ne', text=str(self.score), fill='white')
 
@@ -55,9 +56,17 @@ class Game:
 				self.new_ttr()
 				if self.t.locked:
 					self.end = True
+		elif key == 'space':
+			while not self.t.locked:
+				self.t.fall()
+				self.soft_lines += 1
+			self.redraw()
+			self.new_ttr()
+			if self.t.locked:
+				self.end = True
 
 	def square(self, pos, colour):
-		return self.canvas.create_rectangle(pos[0]*32*self.scale, pos[1]*32*self.scale, pos[0]*32*self.scale+32*self.scale, pos[1]*32*self.scale+32*self.scale, fill=colour)
+		return self.canvas.create_rectangle(pos[0]*self.grid_size*self.scale, pos[1]*self.grid_size*self.scale, pos[0]*self.grid_size*self.scale+self.grid_size*self.scale, pos[1]*self.grid_size*self.scale+self.grid_size*self.scale, fill=colour)
 
 	def draw_ttr(self, ttr):
 		drawn = []
@@ -91,7 +100,7 @@ class Game:
 			for x in range(self.size[0]):
 				if self.grid[x, y]:
 					obj_idx = self.static_blocks[x, y]
-					self.canvas.move(obj_idx, 0, 32 * self.scale)
+					self.canvas.move(obj_idx, 0, self.grid_size * self.scale)
 					self.static_blocks[x, y + 1] = obj_idx
 					self.grid[x, y] = False
 					self.grid[x, y + 1] = True
