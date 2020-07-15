@@ -24,9 +24,9 @@ class Tetrimino:
 		self.grid = grid
 
 		self.gridsize = self.grid.shape
-		self.locked = False
-		self.pos = np.array([self.size-1, 0])
-		self.centre = np.array([self.size / 2, self.size / 2])
+		self.pos = np.array([4, 0])
+		self.centre = np.array([(self.size -1) / 2, (self.size -1) / 2])
+		self.locked = self.occupied(self.positions)
 
 	@property
 	def positions(self):
