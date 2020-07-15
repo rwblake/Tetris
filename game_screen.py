@@ -20,6 +20,8 @@ class Game:
 		self.canvas.pack()
 		self.end = False
 
+		self.static_blocks = np.empty(self.size, dtype=int)
+
 		self.t = ttr.random_tetrimino(self.grid)
 		self.t_drawn = self.draw_ttr(self.t)
 
@@ -62,11 +64,42 @@ class Game:
 			self.canvas.delete(part)
 		self.t_drawn = self.draw_ttr(self.t)
 
+	def full_row(self):
+		grid = np.copy(self.grid)
+		grid = np.swapaxes(grid, 0, 1)
+		for i, row in enumerate(grid):
+			for item in row:
+				if not item:
+					break
+			else:
+				return i
+
+	def delete_and_shift(self, row):
+		for i in range(self.size[0]):
+			if self.grid[i, row]:
+				self.canvas.delete(self.static_blocks[i, row])
+				self.static_blocks[i, row] = 99999
+				self.grid[i, row] = False
+		for y in range(row - 1, 0, -1):
+			for x in range(self.size[0]):
+				if self.grid[x, y]:
+					obj_idx = self.static_blocks[x, y]
+					self.canvas.move(obj_idx, 0, 32 * self.scale)
+					self.static_blocks[x, y + 1] = obj_idx
+					self.grid[x, y] = False
+					self.grid[x, y + 1] = True
+
 	def new_ttr(self):
-		for pos in self.t.positions:
-			self.grid[pos[0], pos[1]] = True
+		for pos, t in zip(self.t.positions, self.t_drawn):
+			self.grid[tuple(pos)] = True
+			self.static_blocks[tuple(pos)] = t
 		self.t = ttr.random_tetrimino(self.grid)
 		self.t_drawn = []
+
+		row = self.full_row()
+		while row is not None:
+			self.delete_and_shift(row)
+			row = self.full_row()
 
 	def loop(self):
 		if self.end:
