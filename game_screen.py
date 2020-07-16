@@ -1,3 +1,4 @@
+"""contains Game class for tetris window"""
 
 
 import numpy as np
@@ -8,12 +9,17 @@ import tetrimino as ttr
 
 
 class Game:
-	size = [10, 20]
-	speed_ms = 300
+	"""handles the game window where the game is played and coordinates
+	the game"""
+
+	size = [10, 20]  # tetris window size in blocks
+	speed_ms = 300  # time between falling blocks
 	scoring = {0: 0, 1: 100, 2: 400, 3: 900, 4:2000}
-	grid_size = 32
+	grid_size = 32  # pixels to 1 block (multiplied by self.scale)
 
 	def __init__(self, parent, scale):
+		"""create tkinter canvas objects for game"""
+
 		self.parent = parent
 		self.scale = scale
 
@@ -22,6 +28,8 @@ class Game:
 		self.score_text = self.canvas.create_text(self.size[0]*32*self.scale, 0, anchor='ne', text='', fill='white')
 
 	def start(self):
+		"""reset variables, bind keys and start game loop"""
+
 		self.end = False
 		self.score = 0
 		self.soft_lines = 0
@@ -36,6 +44,8 @@ class Game:
 		self.parent.after(self.speed_ms, self.loop)
 
 	def callback(self, event):
+		"""handles keypresses when bound"""
+
 		if self.end:
 			self.parent.unbind('All')
 			return
@@ -68,20 +78,28 @@ class Game:
 				self.end = True
 
 	def square(self, pos, colour):
+		"""creates and returns a square on canvas"""
+
 		return self.canvas.create_rectangle(pos[0]*self.grid_size*self.scale, pos[1]*self.grid_size*self.scale, pos[0]*self.grid_size*self.scale+self.grid_size*self.scale, pos[1]*self.grid_size*self.scale+self.grid_size*self.scale, fill=colour)
 
 	def draw_ttr(self, ttr):
+		"""creates and returns list of squares for drawn tetrimino"""
+
 		drawn = []
 		for pos in ttr.positions:
 			drawn.append(self.square(pos, ttr.colour))
 		return drawn
 
 	def redraw(self):
+		"""redraws current tetrimino to current position"""
+
 		for part in self.t_drawn:
 			self.canvas.delete(part)
 		self.t_drawn = self.draw_ttr(self.t)
 
 	def full_row(self):
+		"""returns a row number if a row is filled"""
+
 		grid = np.copy(self.grid)
 		grid = np.swapaxes(grid, 0, 1)
 		for i, row in enumerate(grid):
@@ -92,13 +110,15 @@ class Game:
 				return i
 
 	def delete_and_shift(self, row):
+		"""delete specified row and move rows above down by 1"""
+
 		for i in range(self.size[0]):
 			if self.grid[i, row]:
 				self.canvas.delete(self.static_blocks[i, row])
 				self.static_blocks[i, row] = 99999
 				self.grid[i, row] = False
 				self.squares -= 1
-		for y in range(row - 1, 0, -1):
+		for y in range(row - 1, 0, -1):  # loop over previous rows
 			for x in range(self.size[0]):
 				if self.grid[x, y]:
 					obj_idx = self.static_blocks[x, y]
@@ -108,6 +128,9 @@ class Game:
 					self.grid[x, y + 1] = True
 
 	def new_ttr(self):
+		"""delets previous tetrimino, and creates a new one"""
+
+		# create new ttr
 		for pos, t in zip(self.t.positions, self.t_drawn):
 			self.grid[tuple(pos)] = True
 			self.static_blocks[tuple(pos)] = t
@@ -115,13 +138,15 @@ class Game:
 		self.t = ttr.Tetrimino.random(self.grid)
 		self.t_drawn = []
 
+		# check for filled rows and shift
 		row = self.full_row()
 		lines = 0
-		while row is not None:
+		while row is not None:  # if full row found
 			self.delete_and_shift(row)
 			lines += 1
 			row = self.full_row()
 
+		# scoring
 		added_score = self.soft_lines + self.scoring[lines]
 		if self.squares == 0:
 			added_score *= 10
@@ -130,11 +155,12 @@ class Game:
 		self.canvas.itemconfig(self.score_text, text=str(self.score))
 
 	def loop(self):
+		"""main game loop, run when blocks fall"""
+
 		if self.end:
 			return
 
 		self.t.fall()
-
 		self.redraw()
 
 		if self.t.locked:
@@ -149,6 +175,8 @@ class Game:
 
 
 def main():
+	"""creates a simple tetris window and starts tkinter event loop"""
+
 	scale = 1
 	root = tk.Tk()
 
