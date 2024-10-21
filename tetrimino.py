@@ -68,7 +68,7 @@ class Tetrimino:
 		rel_shape = np.array([point - self.centre for point in self.shape])
 		new_shape = np.dot(rel_shape, rot_mtx)
 
-		shape = (new_shape + self.centre).astype(np.int)
+		shape = (new_shape + self.centre).astype(int)
 		if not self.occupied(shape + self.pos):
 			self.shape = shape
 
